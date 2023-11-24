@@ -1,0 +1,58 @@
+@using eBook.Pages.ViewModel
+
+<div class="card card-flush h-xl-100">
+    <div class="card-header pt-7 ribbon ribbon-end ribbon-clip">
+        
+        @if (!string.IsNullOrEmpty(_cardWidgetViewModel.CardHeader.CardTitle.RibbonTitle))
+        {
+            <div class="ribbon-label">@_cardWidgetViewModel.CardHeader.CardTitle.RibbonTitle
+                <span class="ribbon-inner bg-info"></span>
+            </div>
+        }
+        <h3 class="card-title align-items-start flex-column">
+            <span class="card-label fw-bold text-dark">@_cardWidgetViewModel.CardHeader.CardTitle.Title</span>
+
+            @if (!string.IsNullOrEmpty(_cardWidgetViewModel.CardHeader.CardTitle.Subtitle))
+            {
+                <span class="text-gray-400 mt-1 fw-semibold fs-6">@_cardWidgetViewModel.CardHeader.CardTitle.Subtitle</span>
+            }
+        </h3>
+        
+        @if (!string.IsNullOrEmpty(_cardWidgetViewModel.CardHeader.CardToolbar.Text))
+        {
+            <div class="card-toolbar">
+                <a href="@_cardWidgetViewModel.CardHeader.CardToolbar.Link" class="btn btn-sm btn-light">@_cardWidgetViewModel.CardHeader.CardToolbar.Text</a>
+            </div>
+        }
+       
+    </div>
+
+    <div class="card-body pt-7">
+        <div class="row align-items-end h-100 gx-5 gx-xl-10 flex-row flex-nowrap overflow-x-auto">
+            @foreach (var item in _cardWidgetViewModel.CardBody.CardBodyInfos)
+            {
+                <div class="col-sm-2 mb-3 mb-sm-0">
+                    <a class="d-block overlay" href="@item.ImageUrl" data-fslightbox="lightbox-hot-sales">
+                        <div class="overlay-wrapper bgi-position-center bgi-no-repeat bgi-size-cover h-200px card-rounded mb-3" style="height: 266px; background-image:url('@item.ImageUrl')"></div>
+                        <div class="overlay-layer card-rounded bg-dark bg-opacity-25">
+                            <i class="ki-duotone ki-eye fs-3x text-white">
+                                <span class="path1"></span>
+                                <span class="path2"></span>
+                                <span class="path3"></span>
+                            </i>
+                        </div>
+                    </a>
+                    <div class="m-0">
+                        <a href="@item.Url" class="text-gray-800 text-hover-primary fs-3 fw-bold d-block mb-2">@item.Title</a>
+                        <span class="fw-bold fs-6 text-gray-400 d-block lh-1">@item.SubTitle</span>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public CardWidgetViewModel _cardWidgetViewModel { get; set; }
+}

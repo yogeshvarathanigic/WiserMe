@@ -1,0 +1,28 @@
+<div id="carouselExampleCaptions" class="carousel slide" data-ride="carousel">
+    <div class="carousel-indicators">
+        @for (int i = 0; i < 3; i++)
+        {
+            <button type="button" data-target="#carouselExampleCaptions" data-slide-to="@i" class="@((i == 0) ? "active" : "")" aria-current="@(i == 0)" aria-label="Slide @(i + 1)"></button>
+        }
+    </div>
+    <div class="carousel-inner">
+        @for (int i = 0; i < 3; i++)
+        {
+            <div class="carousel-item @(i == 0 ? "active" : "")">
+                <img src="_content/eBook.Pages/assets/media/misc/menu-header-bg.jpg" class="d-block w-100" alt="...">
+                <div class="carousel-caption d-none d-md-block">
+                    <h5>Slide @(i + 1) label</h5>
+                    <p>Some representative placeholder content for slide @(i + 1).</p>
+                </div>
+            </div>
+        }
+    </div>
+    <button class="carousel-control-prev" type="button" data-target="#carouselExampleCaptions" data-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-target="#carouselExampleCaptions" data-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+    </button>
+</div>

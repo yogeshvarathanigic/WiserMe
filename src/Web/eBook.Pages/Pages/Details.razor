@@ -1,0 +1,19 @@
+﻿@page "/details"
+@using eBook.Pages.Shared.Widgets
+@using eBook.Pages.ViewModel
+
+<div id="kt_app_content_container" class="app-container container-xxl">
+    
+
+    <div class="row flex-row flex-nowrap">
+    </div>
+
+    <div class="row flex-row flex-nowrap overflow-auto">
+        <CardListWidget></CardListWidget>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public CardWidgetViewModel _cardWidgetViewModel { get; set; }
+}

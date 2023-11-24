@@ -1,0 +1,118 @@
+@using eBook.Pages.ViewModel
+<div class="card h-xl-100" id="kt_list_widget_24">
+    <!--begin::Header-->
+    <div class="card-header border-0 pt-5">
+        <h3 class="card-title align-items-start flex-column">
+            <span class="card-label fw-bold text-gray-800">@listWidgetViewModel.Title</span>
+            <span class="text-gray-400 mt-1 fw-bold fs-7">@listWidgetViewModel.SubTitle</span>
+        </h3>
+        <!--begin::Toolbar-->
+        <div class="card-toolbar">
+            <a href="/read-viewer" class="btn btn-sm btn-light">View All</a>
+        </div>
+        <!--end::Toolbar-->
+    </div>
+    <!--end::Header-->
+    <!--begin::Body-->
+    <div class="card-body pt-6">
+        <!--begin::Item-->
+        @foreach (var item in listWidgetViewModel.ListDetails)
+        {
+            count = count + 1;
+            <div class="d-flex flex-stack">
+                <!--begin::Symbol-->
+                <span class="badge badge-primary badge-square badge-lg">@count</span>
+                <div class="symbol symbol-60px me-4">
+                    <img src="@item.AvatarUrl" class="" alt="@item.Name">
+                </div>
+                <!--end::Symbol-->
+                <!--begin::Section-->
+                <div class="d-flex align-items-center flex-row-fluid flex-wrap">
+                    <!--begin:Author-->
+                    <div class="flex-grow-1 me-2">
+                        <a href="/details-info" class="text-gray-800 text-hover-primary fs-5 fw-bolder">@item.Name
+                        <span class="text-gray-400 fw-semibold d-block fs-6">@item.Description</span>
+                        </a>
+                    </div>
+                    <!--end:Author-->
+                </div>
+                <!--end::Section-->
+            </div>
+            <!--begin::Separator-->
+            <div class="separator separator-content my-5"></div>
+            <!--end::Separator-->
+        }
+        <!--end::Item-->
+    </div>
+    <!--end::Body-->
+</div>
+
+@code
+{
+    int count = 0;
+    ListWidgetViewModel listWidgetViewModel = new ListWidgetViewModel()
+    {
+        Title = "Top 10 Management Books",
+        SubTitle = "",
+        ListDetails = new List<ListDetail>
+        {
+            new ListDetail
+            {
+                Name = "Daily Podcast",
+                AvatarUrl = "_content/eBook.Pages/assets/media/book/1.png",
+                NavigationUrl = "_content/eBook.Pages/assets/media/book/1.png",
+                Description = "In the grand story of my life, each day is a layer of the ice cream sandwich—sometimes sweet, sometimes challenging. The vanilla ice cream represents the moments of joy and simplicity, while the outer layers of chocolate cookie symbolize the inevitable hurdles and trials. Together, they create a unique and flavorful experience that is my life's journey, with each bite revealing a new and unexpected flavor"
+            },
+            new ListDetail
+            {
+                Name = "Daily Podcast 2",
+                AvatarUrl = "_content/eBook.Pages/assets/media/book/2.png",
+                NavigationUrl = "_content/eBook.Pages/assets/media/book/2.png",
+                Description = "In the grand story of my life, each day is a layer of the ice cream sandwich—sometimes sweet, sometimes challenging. The vanilla ice cream represents the moments of joy and simplicity, while the outer layers of chocolate cookie symbolize the inevitable hurdles and trials. Together, they create a unique and flavorful experience that is my life's journey, with each bite revealing a new and unexpected flavor"
+            },
+            new ListDetail
+            {
+                Name = "Daily Podcast 3",
+                AvatarUrl = "_content/eBook.Pages/assets/media/book/3.png",
+                NavigationUrl = "_content/eBook.Pages/assets/media/book/3.png",
+                Description = "In the grand story of my life, each day is a layer of the ice cream sandwich—sometimes sweet, sometimes challenging. The vanilla ice cream represents the moments of joy and simplicity, while the outer layers of chocolate cookie symbolize the inevitable hurdles and trials. Together, they create a unique and flavorful experience that is my life's journey, with each bite revealing a new and unexpected flavor"
+            },
+            new ListDetail
+            {
+                Name = "Daily Podcast 4",
+                AvatarUrl = "_content/eBook.Pages/assets/media/book/4.png",
+                NavigationUrl = "_content/eBook.Pages/assets/media/book/4.png",
+                Description = "In the grand story of my life, each day is a layer of the ice cream sandwich—sometimes sweet, sometimes challenging. The vanilla ice cream represents the moments of joy and simplicity, while the outer layers of chocolate cookie symbolize the inevitable hurdles and trials. Together, they create a unique and flavorful experience that is my life's journey, with each bite revealing a new and unexpected flavor"
+            },
+             new ListDetail
+            {
+                Name = "Daily Podcast 5",
+                AvatarUrl = "_content/eBook.Pages/assets/media/book/5.png",
+                NavigationUrl = "_content/eBook.Pages/assets/media/book/5.png",
+                Description = "In the grand story of my life, each day is a layer of the ice cream sandwich—sometimes sweet, sometimes challenging. The vanilla ice cream represents the moments of joy and simplicity, while the outer layers of chocolate cookie symbolize the inevitable hurdles and trials. Together, they create a unique and flavorful experience that is my life's journey, with each bite revealing a new and unexpected flavor"
+            },
+            new ListDetail
+            {
+                Name = "Daily Podcast 6",
+                AvatarUrl = "_content/eBook.Pages/assets/media/book/6.png",
+                NavigationUrl = "_content/eBook.Pages/assets/media/book/6.png",
+                Description = "In the grand story of my life, each day is a layer of the ice cream sandwich—sometimes sweet, sometimes challenging. The vanilla ice cream represents the moments of joy and simplicity, while the outer layers of chocolate cookie symbolize the inevitable hurdles and trials. Together, they create a unique and flavorful experience that is my life's journey, with each bite revealing a new and unexpected flavor"
+            },
+            new ListDetail
+            {
+                Name = "Daily Podcast 7",
+                AvatarUrl = "_content/eBook.Pages/assets/media/book/7.png",
+                NavigationUrl = "_content/eBook.Pages/assets/media/book/7.png",
+                Description = "In the grand story of my life, each day is a layer of the ice cream sandwich—sometimes sweet, sometimes challenging. The vanilla ice cream represents the moments of joy and simplicity, while the outer layers of chocolate cookie symbolize the inevitable hurdles and trials. Together, they create a unique and flavorful experience that is my life's journey, with each bite revealing a new and unexpected flavor"
+            },
+            new ListDetail
+            {
+                Name = "Daily Podcast 8",
+                AvatarUrl = "_content/eBook.Pages/assets/media/book/8.png",
+                NavigationUrl = "_content/eBook.Pages/assets/media/book/8.png",
+                Description = "In the grand story of my life, each day is a layer of the ice cream sandwich—sometimes sweet, sometimes challenging. The vanilla ice cream represents the moments of joy and simplicity, while the outer layers of chocolate cookie symbolize the inevitable hurdles and trials. Together, they create a unique and flavorful experience that is my life's journey, with each bite revealing a new and unexpected flavor"
+            }
+        }
+
+    };
+}

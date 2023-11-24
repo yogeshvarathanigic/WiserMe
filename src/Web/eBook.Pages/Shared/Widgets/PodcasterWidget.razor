@@ -1,0 +1,86 @@
+<div class="card h-xl-100" id="kt_list_widget_24">
+    <!--begin::Header-->
+    <div class="card-header border-0 pt-5">
+        <h3 class="card-title align-items-start flex-column">
+            <span class="card-label fw-bold text-gray-800">Top Podcaster</span>
+            <span class="text-gray-400 mt-1 fw-bold fs-7">8k social visitors</span>
+        </h3>
+        <!--begin::Toolbar-->
+        <div class="card-toolbar">
+            <a href="#" class="btn btn-sm btn-light">View All</a>
+        </div>
+        <!--end::Toolbar-->
+    </div>
+    <!--end::Header-->
+    <!--begin::Body-->
+    <div class="card-body pt-6">
+        <!--begin::Item-->
+        @foreach (var item in podcasters)
+        {
+            <div class="d-flex flex-stack">
+                <!--begin::Symbol-->
+                <div class="symbol symbol-circle symbol-60px me-4">
+                    <img src="@item.AvatarUrl" class="" alt="@item.Name">
+                </div>
+                <!--end::Symbol-->
+                <!--begin::Section-->
+                <div class="d-flex align-items-center flex-row-fluid flex-wrap">
+                    <!--begin:Author-->
+                    <div class="flex-grow-1 me-2">
+                        <a href="@item.ProfileUrl" class="text-gray-800 text-hover-primary fs-5 fw-bolder">@item.Name</a>
+                        <span class="text-gray-400 fw-semibold d-block fs-6">@item.Category</span>
+                    </div>
+                    <!--end:Author-->
+                    <!--begin::Follow-->
+                    @if (item.IsFollowing)
+                    {
+                        <button class="btn btn-sm btn-primary py-2 px-4 fs-7 fw-bold" data-kt-element="follow">Following</button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-sm btn-light-primary py-2 px-4 fs-7 fs-bolder" data-kt-element="follow">Follow</button>
+                    }
+                    <!--end::Follow-->
+                </div>
+                <!--end::Section-->
+            </div>
+            <!--begin::Separator-->
+            <div class="separator separator-dashed my-5"></div>
+            <!--end::Separator-->
+        }
+        <!--end::Item-->
+    </div>
+    <!--end::Body-->
+</div>
+
+@code
+{
+    public class Podcaster
+    {
+        public string Name { get; set; }
+        public string AvatarUrl { get; set; }
+        public string ProfileUrl { get; set; }
+        public string Category { get; set; }
+        public bool IsFollowing { get; set; }
+    }
+
+    List<Podcaster> podcasters = new List<Podcaster>
+    {
+        new Podcaster
+        {
+            Name = "Daily Podcast",
+            AvatarUrl = "assets/media/stock/600x600/img-61.jpg",
+            ProfileUrl = "assets/media/stock/600x600/img-61.jpg",
+            IsFollowing = true,
+            Category = "Darlene Robertson"
+        },
+        new Podcaster
+        {
+            Name = "Daily Podcast 2",
+            AvatarUrl = "assets/media/stock/600x600/img-61.jpg",
+            ProfileUrl = "assets/media/stock/600x600/img-61.jpg",
+            IsFollowing = false,
+            Category = "Darlene Robertson"
+        }
+    };
+}

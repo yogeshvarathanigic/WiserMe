@@ -1,0 +1,650 @@
+@page "/listen-discover"
+
+@implements IDisposable
+@inject PodcastService PodcastService
+@inject PlayerService PlayerService
+@inject SubscriptionsService SubscriptionsService
+@inject PersistentComponentState ApplicationState
+
+<PageTitle>Podcast - Discover</PageTitle>
+
+<SearchBar OnSearch="@FetchShows" />
+
+@if (groupedShows == null)
+{
+    <Spinner />
+}
+else
+{
+    <div class="containerPage containerPage--featured">
+        <div class="categories">
+            <NavLink href="categories" class="appLink" title="See all categories">
+                See all categories
+            </NavLink>
+            <Tags Items="@topCategories" TItem="Category">
+                <ItemTemplate Context="item">
+                    <NavLink href="@($"category/{item.Id}")" title="@item.Genre">
+                        @item.Genre
+                    </NavLink>
+                </ItemTemplate>
+            </Tags>
+        </div>
+
+        @if (!groupedShows.Any())
+        {
+            <NoResults Message="Oops, no results found." Image="_content/Podcast.Components/images/empty-results.png" ShowDiscoverButton="false" />
+        }
+        else
+        {
+            foreach (var group in groupedShows)
+            {
+                <div class="titleWrapper">
+                    <TitlePage Label="@group.Key" />
+                </div>
+
+                <Grid Items="@group.Value" TItem="Show">
+                    <ItemTemplate Context="item">
+                        <NavLink @key="item.Id" href="@($"show/{item.Id}")">
+                            <ShowCard Id="@item.Id" Title="@item.Title" Author="@item.Author" Image="@item.Image" />
+                        </NavLink>
+                    </ItemTemplate>
+                    <EmptyResults></EmptyResults>
+                </Grid>
+            }
+        }
+    </div>
+}
+
+@code {
+    private const int MaxShows = 10;
+    private const int MaxCategories = 5;
+
+    private Show[]? allShows;
+    private Dictionary<string, List<Show>>? groupedShows;
+    private IEnumerable<Category>? topCategories;
+    private PersistingComponentStateSubscription _persistingSubscription;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _persistingSubscription = ApplicationState.RegisterOnPersisting(PersistShows);
+
+        if (!ApplicationState.TryTakeFromJson<Show[]>("shows", out var restored))
+        {
+            //allShows = await PodcastService.GetShows(MaxShows, null);
+            allShows = new Show[]
+            {
+                new Show(
+                    Id: Guid.NewGuid(),
+                    Title: "Tech Talk Podcast",
+                    Author: "Saba",
+                    Description: "A podcast about technology and innovation.",
+                    Image: "https://file-examples.com/wp-content/storage/2017/10/file_example_PNG_500kB.png",
+                    Updated: DateTime.UtcNow,
+                    Link: "https://www.techtalkpodcast.com",
+                    Email: "saba@example.com",
+                    Language: "English",
+                    Categories: new List<Category>
+                    {
+                        new Category(Guid.NewGuid(), "Technology"),
+                        new Category(Guid.NewGuid(), "Innovation"),
+                        new Category(Guid.NewGuid(), "Excellence"),
+                    },
+                    Episodes: new List<Episode>
+                    {
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 1: Introduction to Tech Talk",
+                            Description: "In this episode, we introduce our podcast and discuss our goals.",
+                            Published: DateTime.UtcNow.AddMonths(-1),
+                            Url: "https://www.techtalkpodcast.com/episode1",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 2: The Future of Technology",
+                            Description: "We explore the latest advancements in technology and their impact on society.",
+                            Published: DateTime.UtcNow.AddMonths(-2),
+                            Url: "https://www.techtalkpodcast.com/episode2",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                    },
+                    IsFeatured: true
+                    ),
+                new Show(
+                    Id: Guid.NewGuid(),
+                    Title: "Tech Talk Podcast 2",
+                    Author: "Bala",
+                    Description: "A podcast about technology and innovation.",
+                    Image: "https://file-examples.com/wp-content/storage/2017/10/file_example_PNG_500kB.png",
+                    Updated: DateTime.UtcNow,
+                    Link: "https://www.techtalkpodcast.com",
+                    Email: "saba@example.com",
+                    Language: "English",
+                    Categories: new List<Category>
+                    {
+                        new Category(Guid.NewGuid(), "Science"),
+                        new Category(Guid.NewGuid(), "Innovation"),
+                        new Category(Guid.NewGuid(), "Excellence"),
+                    },
+                    Episodes: new List<Episode>
+                    {
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 1: Introduction to Tech Talk 1",
+                            Description: "In this episode, we introduce our podcast and discuss our goals.",
+                            Published: DateTime.UtcNow.AddMonths(-1),
+                            Url: "https://www.techtalkpodcast.com/episode1",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 2: The Future of Technology 2",
+                            Description: "We explore the latest advancements in technology and their impact on society.",
+                            Published: DateTime.UtcNow.AddMonths(-2),
+                            Url: "https://www.techtalkpodcast.com/episode2",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                    },
+                    IsFeatured: false
+                    ),
+                new Show(
+                    Id: Guid.NewGuid(),
+                    Title: "Tech Talk Podcast 2",
+                    Author: "saba bala",
+                    Description: "A podcast about technology and innovation. ",
+                    Image: "https://file-examples.com/wp-content/storage/2017/10/file_example_PNG_500kB.png",
+                    Updated: DateTime.UtcNow,
+                    Link: "https://www.techtalkpodcast.com",
+                    Email: "saba@example.com",
+                    Language: "English",
+                    Categories: new List<Category>
+                    {
+                        new Category(Guid.NewGuid(), "Astronomy"),
+                        new Category(Guid.NewGuid(), "Physics"),
+                        new Category(Guid.NewGuid(), "Excellence"),
+                    },
+                    Episodes: new List<Episode>
+                    {
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 1: Introduction to Tech Talk 2",
+                            Description: "In this episode, we introduce our podcast and discuss our goals.",
+                            Published: DateTime.UtcNow.AddMonths(-1),
+                            Url: "https://www.techtalkpodcast.com/episode1",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 2: The Future of Technology 2",
+                            Description: "We explore the latest advancements in technology and their impact on society.",
+                            Published: DateTime.UtcNow.AddMonths(-2),
+                            Url: "https://www.techtalkpodcast.com/episode2",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                    },
+                    IsFeatured: false
+                    ),
+                new Show(
+                    Id: Guid.NewGuid(),
+                    Title: "Tech Talk Podcast 3",
+                    Author: "saba bala",
+                    Description: "A podcast about technology and innovation.",
+                    Image: "https://file-examples.com/wp-content/storage/2017/10/file_example_PNG_500kB.png",
+                    Updated: DateTime.UtcNow,
+                    Link: "https://www.techtalkpodcast.com",
+                    Email: "saba@example.com",
+                    Language: "English",
+                    Categories: new List<Category>
+                    {
+                        new Category(Guid.NewGuid(), "Fiction"),
+                        new Category(Guid.NewGuid(), "Innovation"),
+                        new Category(Guid.NewGuid(), "Excellence"),
+                    },
+                    Episodes: new List<Episode>
+                    {
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 1: Introduction to Tech Talk 4",
+                            Description: "In this episode, we introduce our podcast and discuss our goals.",
+                            Published: DateTime.UtcNow.AddMonths(-1),
+                            Url: "https://www.techtalkpodcast.com/episode1",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 2: The Future of Technology 4",
+                            Description: "We explore the latest advancements in technology and their impact on society.",
+                            Published: DateTime.UtcNow.AddMonths(-2),
+                            Url: "https://www.techtalkpodcast.com/episode2",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                    },
+                    IsFeatured: true
+                    ),
+                new Show(
+                    Id: Guid.NewGuid(),
+                    Title: "Tech Talk Podcast 2",
+                    Author: "saba bala",
+                    Description: "A podcast about technology and innovation. ",
+                    Image: "https://file-examples.com/wp-content/storage/2017/10/file_example_PNG_500kB.png",
+                    Updated: DateTime.UtcNow,
+                    Link: "https://www.techtalkpodcast.com",
+                    Email: "saba@example.com",
+                    Language: "English",
+                    Categories: new List<Category>
+                    {
+                        new Category(Guid.NewGuid(), "Astronomy"),
+                        new Category(Guid.NewGuid(), "Physics"),
+                        new Category(Guid.NewGuid(), "Excellence"),
+                    },
+                    Episodes: new List<Episode>
+                    {
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 1: Introduction to Tech Talk 2",
+                            Description: "In this episode, we introduce our podcast and discuss our goals.",
+                            Published: DateTime.UtcNow.AddMonths(-1),
+                            Url: "https://www.techtalkpodcast.com/episode1",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 2: The Future of Technology 2",
+                            Description: "We explore the latest advancements in technology and their impact on society.",
+                            Published: DateTime.UtcNow.AddMonths(-2),
+                            Url: "https://www.techtalkpodcast.com/episode2",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                    },
+                    IsFeatured: false
+                    ),
+                new Show(
+                    Id: Guid.NewGuid(),
+                    Title: "Tech Talk Podcast 3",
+                    Author: "saba bala",
+                    Description: "A podcast about technology and innovation.",
+                    Image: "https://file-examples.com/wp-content/storage/2017/10/file_example_PNG_500kB.png",
+                    Updated: DateTime.UtcNow,
+                    Link: "https://www.techtalkpodcast.com",
+                    Email: "saba@example.com",
+                    Language: "English",
+                    Categories: new List<Category>
+                    {
+                        new Category(Guid.NewGuid(), "Fiction"),
+                        new Category(Guid.NewGuid(), "Innovation"),
+                        new Category(Guid.NewGuid(), "Excellence"),
+                    },
+                    Episodes: new List<Episode>
+                    {
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 1: Introduction to Tech Talk 4",
+                            Description: "In this episode, we introduce our podcast and discuss our goals.",
+                            Published: DateTime.UtcNow.AddMonths(-1),
+                            Url: "https://www.techtalkpodcast.com/episode1",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 2: The Future of Technology 4",
+                            Description: "We explore the latest advancements in technology and their impact on society.",
+                            Published: DateTime.UtcNow.AddMonths(-2),
+                            Url: "https://www.techtalkpodcast.com/episode2",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                    },
+                    IsFeatured: true
+                    ),
+                new Show(
+                    Id: Guid.NewGuid(),
+                    Title: "Tech Talk Podcast 2",
+                    Author: "saba bala",
+                    Description: "A podcast about technology and innovation. ",
+                    Image: "https://file-examples.com/wp-content/storage/2017/10/file_example_PNG_500kB.png",
+                    Updated: DateTime.UtcNow,
+                    Link: "https://www.techtalkpodcast.com",
+                    Email: "saba@example.com",
+                    Language: "English",
+                    Categories: new List<Category>
+                    {
+                        new Category(Guid.NewGuid(), "Astronomy"),
+                        new Category(Guid.NewGuid(), "Physics"),
+                        new Category(Guid.NewGuid(), "Excellence"),
+                    },
+                    Episodes: new List<Episode>
+                    {
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 1: Introduction to Tech Talk 2",
+                            Description: "In this episode, we introduce our podcast and discuss our goals.",
+                            Published: DateTime.UtcNow.AddMonths(-1),
+                            Url: "https://www.techtalkpodcast.com/episode1",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 2: The Future of Technology 2",
+                            Description: "We explore the latest advancements in technology and their impact on society.",
+                            Published: DateTime.UtcNow.AddMonths(-2),
+                            Url: "https://www.techtalkpodcast.com/episode2",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                    },
+                    IsFeatured: false
+                    ),
+                new Show(
+                    Id: Guid.NewGuid(),
+                    Title: "Tech Talk Podcast 3",
+                    Author: "saba bala",
+                    Description: "A podcast about technology and innovation.",
+                    Image: "https://file-examples.com/wp-content/storage/2017/10/file_example_PNG_500kB.png",
+                    Updated: DateTime.UtcNow,
+                    Link: "https://www.techtalkpodcast.com",
+                    Email: "saba@example.com",
+                    Language: "English",
+                    Categories: new List<Category>
+                    {
+                        new Category(Guid.NewGuid(), "Fiction"),
+                        new Category(Guid.NewGuid(), "Innovation"),
+                        new Category(Guid.NewGuid(), "Excellence"),
+                    },
+                    Episodes: new List<Episode>
+                    {
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 1: Introduction to Tech Talk 4",
+                            Description: "In this episode, we introduce our podcast and discuss our goals.",
+                            Published: DateTime.UtcNow.AddMonths(-1),
+                            Url: "https://www.techtalkpodcast.com/episode1",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 2: The Future of Technology 4",
+                            Description: "We explore the latest advancements in technology and their impact on society.",
+                            Published: DateTime.UtcNow.AddMonths(-2),
+                            Url: "https://www.techtalkpodcast.com/episode2",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                    },
+                    IsFeatured: true
+                    ),
+                new Show(
+                    Id: Guid.NewGuid(),
+                    Title: "Tech Talk Podcast 5",
+                    Author: "saba bala 5",
+                    Description: "A podcast about technology and innovation. ",
+                    Image: "https://file-examples.com/wp-content/storage/2017/10/file_example_PNG_500kB.png",
+                    Updated: DateTime.UtcNow,
+                    Link: "https://www.techtalkpodcast.com",
+                    Email: "saba@example.com",
+                    Language: "English",
+                    Categories: new List<Category>
+                    {
+                        new Category(Guid.NewGuid(), "Astronomy"),
+                        new Category(Guid.NewGuid(), "Physics"),
+                        new Category(Guid.NewGuid(), "Excellence"),
+                    },
+                    Episodes: new List<Episode>
+                    {
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 1: Introduction to Tech Talk 2",
+                            Description: "In this episode, we introduce our podcast and discuss our goals.",
+                            Published: DateTime.UtcNow.AddMonths(-1),
+                            Url: "https://www.techtalkpodcast.com/episode1",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 2: The Future of Technology 2",
+                            Description: "We explore the latest advancements in technology and their impact on society.",
+                            Published: DateTime.UtcNow.AddMonths(-2),
+                            Url: "https://www.techtalkpodcast.com/episode2",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 3: Introduction to Tech Talk 2",
+                            Description: "In this episode, we introduce our podcast and discuss our goals.",
+                            Published: DateTime.UtcNow.AddMonths(-1),
+                            Url: "https://www.techtalkpodcast.com/episode1",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 4: The Future of Technology 2",
+                            Description: "We explore the latest advancements in technology and their impact on society.",
+                            Published: DateTime.UtcNow.AddMonths(-2),
+                            Url: "https://www.techtalkpodcast.com/episode2",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 5: Introduction to Tech Talk 2",
+                            Description: "In this episode, we introduce our podcast and discuss our goals.",
+                            Published: DateTime.UtcNow.AddMonths(-1),
+                            Url: "https://www.techtalkpodcast.com/episode1",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 6: The Future of Technology 2",
+                            Description: "We explore the latest advancements in technology and their impact on society.",
+                            Published: DateTime.UtcNow.AddMonths(-2),
+                            Url: "https://www.techtalkpodcast.com/episode2",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 7: Introduction to Tech Talk 2",
+                            Description: "In this episode, we introduce our podcast and discuss our goals.",
+                            Published: DateTime.UtcNow.AddMonths(-1),
+                            Url: "https://www.techtalkpodcast.com/episode1",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 8: The Future of Technology 2",
+                            Description: "We explore the latest advancements in technology and their impact on society.",
+                            Published: DateTime.UtcNow.AddMonths(-2),
+                            Url: "https://www.techtalkpodcast.com/episode2",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 9: Introduction to Tech Talk 2",
+                            Description: "In this episode, we introduce our podcast and discuss our goals.",
+                            Published: DateTime.UtcNow.AddMonths(-1),
+                            Url: "https://www.techtalkpodcast.com/episode1",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 10: The Future of Technology 2",
+                            Description: "We explore the latest advancements in technology and their impact on society.",
+                            Published: DateTime.UtcNow.AddMonths(-2),
+                            Url: "https://www.techtalkpodcast.com/episode2",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 11: Introduction to Tech Talk 2",
+                            Description: "In this episode, we introduce our podcast and discuss our goals.",
+                            Published: DateTime.UtcNow.AddMonths(-1),
+                            Url: "https://www.techtalkpodcast.com/episode1",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 12: The Future of Technology 2",
+                            Description: "We explore the latest advancements in technology and their impact on society.",
+                            Published: DateTime.UtcNow.AddMonths(-2),
+                            Url: "https://www.techtalkpodcast.com/episode2",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 13: Introduction to Tech Talk 2",
+                            Description: "In this episode, we introduce our podcast and discuss our goals.",
+                            Published: DateTime.UtcNow.AddMonths(-1),
+                            Url: "https://www.techtalkpodcast.com/episode1",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 14: The Future of Technology 2",
+                            Description: "We explore the latest advancements in technology and their impact on society.",
+                            Published: DateTime.UtcNow.AddMonths(-2),
+                            Url: "https://www.techtalkpodcast.com/episode2",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 15: Introduction to Tech Talk 2",
+                            Description: "In this episode, we introduce our podcast and discuss our goals.",
+                            Published: DateTime.UtcNow.AddMonths(-1),
+                            Url: "https://www.techtalkpodcast.com/episode1",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 16: The Future of Technology 2",
+                            Description: "We explore the latest advancements in technology and their impact on society.",
+                            Published: DateTime.UtcNow.AddMonths(-2),
+                            Url: "https://www.techtalkpodcast.com/episode2",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 17: Introduction to Tech Talk 2",
+                            Description: "In this episode, we introduce our podcast and discuss our goals.",
+                            Published: DateTime.UtcNow.AddMonths(-1),
+                            Url: "https://www.techtalkpodcast.com/episode1",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 18: The Future of Technology 2",
+                            Description: "We explore the latest advancements in technology and their impact on society.",
+                            Published: DateTime.UtcNow.AddMonths(-2),
+                            Url: "https://www.techtalkpodcast.com/episode2",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            )
+                    },
+                    IsFeatured: false
+                    ),
+                new Show(
+                    Id: Guid.NewGuid(),
+                    Title: "Tech Talk Podcast 3",
+                    Author: "saba bala",
+                    Description: "A podcast about technology and innovation.",
+                    Image: "https://file-examples.com/wp-content/storage/2017/10/file_example_PNG_500kB.png",
+                    Updated: DateTime.UtcNow,
+                    Link: "https://www.techtalkpodcast.com",
+                    Email: "saba@example.com",
+                    Language: "English",
+                    Categories: new List<Category>
+                    {
+                        new Category(Guid.NewGuid(), "Fiction"),
+                        new Category(Guid.NewGuid(), "Innovation"),
+                        new Category(Guid.NewGuid(), "Excellence"),
+                    },
+                    Episodes: new List<Episode>
+                    {
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 1: Introduction to Tech Talk 4",
+                            Description: "In this episode, we introduce our podcast and discuss our goals.",
+                            Published: DateTime.UtcNow.AddMonths(-1),
+                            Url: "https://www.techtalkpodcast.com/episode1",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 2: The Future of Technology 4",
+                            Description: "We explore the latest advancements in technology and their impact on society.",
+                            Published: DateTime.UtcNow.AddMonths(-2),
+                            Url: "https://www.techtalkpodcast.com/episode2",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                    },
+                    IsFeatured: true
+                    )
+            };
+
+        }
+        else
+        {
+            allShows = restored!;
+        }
+        UpdateGroupedShowsAndCategories(allShows);
+    }
+
+    private void UpdateGroupedShowsAndCategories(Show[]? shows)
+    {
+        groupedShows = shows?
+            .GroupBy(s => s.IsFeatured)
+            .Where(s => s.Any())
+            .ToDictionary(s => s.Key ? "What's new" : "Specially for you", s => s.ToList());
+
+        topCategories = shows?
+            .SelectMany(s => s.Categories)
+            .Distinct()
+            .Take(MaxCategories)
+            .ToArray();
+    }
+
+    private async Task FetchShows(string? searchValue = null)
+    {
+        var searchShows = await PodcastService.GetShows(MaxShows, searchValue);
+        UpdateGroupedShowsAndCategories(searchShows);
+    }
+
+    private Task PersistShows()
+    {
+        ApplicationState.PersistAsJson("shows", allShows);
+        return Task.CompletedTask;
+    }
+
+    public void Dispose()
+    {
+        _persistingSubscription.Dispose();
+    }
+}

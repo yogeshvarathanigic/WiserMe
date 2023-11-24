@@ -1,0 +1,97 @@
+﻿@page "/category/{id:guid}"
+@implements IDisposable
+@inject PodcastService PodcastService
+@inject PersistentComponentState ApplicationState
+
+<PageTitle>Podcast - Category @_category?.Genre</PageTitle>
+
+<SearchBar OnSearch="@FetchShows" />
+
+<div class="titleWrapper">
+    <button class="appLink" onclick="history.go(-1)">
+        <span class="appLink-icon icon-chevron-left"></span>
+        <span>Back</span>
+    </button>
+</div>
+
+@if (_shows == null)
+{
+    <Spinner />
+}
+else
+{
+    <div class="containerPage">
+        <div class="titleWrapper">
+            <TitlePage Label="@(_category?.Genre)" />
+        </div>
+
+        <Grid Items="@_shows" TItem="Show">
+            <ItemTemplate Context="item">
+                <NavLink href="@($"show/{item.Id}")">
+                    <ShowCard Id="@item.Id" Title="@item.Title" Author="@item.Author" Image="@item.Image" />
+                </NavLink>
+            </ItemTemplate>
+        </Grid>
+    </div>
+}
+
+@code {
+    private const int ItemsPerCategory = 20;
+
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private Category? _category;
+    private IEnumerable<Show>? _shows;
+    private PersistingComponentStateSubscription _persistingSubscription;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _persistingSubscription = ApplicationState.RegisterOnPersisting(PersistCategoryShows);
+
+        if (!ApplicationState.TryTakeFromJson<Category>("category", out var restoredCategory))
+        {
+            var categories = new Category[]
+            {
+                new Category(Guid.NewGuid(), "Technology"),
+                new Category(Guid.NewGuid(), "Innovation"),
+                new Category(Guid.NewGuid(), "Excellence")
+            };
+            //await PodcastService.GetCategories();
+            _category = categories?.FirstOrDefault(c => c.Id == Id);
+        }
+        else
+        {
+            _category = restoredCategory!;
+        }
+
+        if (!ApplicationState.TryTakeFromJson<IEnumerable<Show>>("category-shows", out var restoredShows))
+        {
+            _shows = await PodcastService.GetShows(ItemsPerCategory, null, Id);
+        }
+        else
+        {
+            _shows = restoredShows!;
+        }
+    }
+
+    private async Task FetchShows(string? searchValue = null)
+    {
+        var categories = await PodcastService.GetCategories();
+        _category = categories?.FirstOrDefault(c => c.Id == Id);
+        _shows = await PodcastService.GetShows(ItemsPerCategory, searchValue, Id);
+    }
+
+    private Task PersistCategoryShows()
+    {
+        ApplicationState.PersistAsJson("category", _category);
+        ApplicationState.PersistAsJson("category-shows", _shows);
+        return Task.CompletedTask;
+    }
+
+    public void Dispose()
+    {
+        _persistingSubscription.Dispose();
+    }
+
+}

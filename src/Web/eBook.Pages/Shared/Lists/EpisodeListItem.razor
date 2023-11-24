@@ -1,0 +1,130 @@
+﻿@using eBook.Pages.Data
+@implements IDisposable
+@inject PlayerService PlayerService
+@inject ListenLaterService ListenLaterService
+@inject NavigationManager NavigationManager
+
+<article class="episode">
+    <div class="episode-sound">
+        <button class="buttonIcon episode-play" title="@(_isCurrentEpisode && _isPlaying ? "Pause" : "Play")" @onclick="TogglePlay">
+            <span class="@(_isCurrentEpisode && _isPlaying ? "icon-pause" : "icon-play")"></span>
+        </button>
+
+        @if (_isCurrentEpisode)
+        {
+            <PlayerBars Color="bars-color" IsPaused="@(!_isPlaying)" />
+        }
+
+        <span class="episode-length">@(Math.Round(Episode.Duration?.TotalMinutes ?? 0, 0)) min</span>
+    </div>
+    <div class="episode-resumeTitle">
+        @if (IsShowVisible)
+        {
+            <Picture Title="@Episode.Show.Title" Image="@Episode.Show.Image" />
+        }
+
+        <div>
+            <h3 class="episode-resumeTitle-title @(_isCurrentEpisode ? "is-playing" : "")">@Episode.Title</h3>
+            @if (IsShowVisible)
+            {
+                <h4 class="episode-resumeTitle-showTitle">@Episode.Show.Title</h4>
+            }
+            <h4 class="episode-resumeTitle-date">@Episode.Published.ToString("MMM dd, yyyy")</h4>
+        </div>
+    </div>
+    <p class="episode-description">
+        @((MarkupString)(Episode.Description ?? ""))
+    </p>
+    <div class="episode-actions">
+        <button class="buttonIcon episode-actions-later" title="Listen Later" @onclick="ToggleListenLater">
+            <span class="@(_isListenLater ? "icon-listen-later-fill" : "icon-listen-later-line")"></span>
+        </button>
+    </div>
+</article>
+
+@code {
+    [EditorRequired]
+    [Parameter]
+    public EpisodeInfo Episode { get; set; } = default!;
+
+    [Parameter]
+    public bool IsShowVisible { get; set; } = false;
+
+    private bool _isPlaying = false;
+    private bool _isCurrentEpisode = false;
+    private bool _isListenLater = false;
+
+    protected override void OnInitialized()
+    {
+        PlayerService.EpisodeChanged += OnEpisodeChanged;
+        PlayerService.PlayingChanged += OnPlayingChanged;
+        ListenLaterService.EpisodesChanged += UpdateListenLater;
+
+        _isCurrentEpisode = PlayerService.Episode?.Id == Episode.Id;
+        _isPlaying = _isCurrentEpisode && PlayerService.IsPlaying;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _isListenLater = await ListenLaterService.IsListenLaterEpisodeAsync(Episode.Id);
+            StateHasChanged();
+        }
+    }
+
+    public void Dispose()
+    {
+        PlayerService.EpisodeChanged -= OnEpisodeChanged;
+        PlayerService.PlayingChanged -= OnPlayingChanged;
+        ListenLaterService.EpisodesChanged -= UpdateListenLater;
+    }
+
+    private async void OnEpisodeChanged(EpisodeInfo? episode)
+    {
+        var newValue = episode?.Id == Episode.Id;
+        if (_isCurrentEpisode != newValue)
+        {
+            _isCurrentEpisode = newValue;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async void OnPlayingChanged(bool playing)
+    {
+        if (_isCurrentEpisode && _isPlaying != playing)
+        {
+            _isPlaying = playing;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async void UpdateListenLater(IEnumerable<EpisodeInfo> episodes)
+    {
+        var newValue = await ListenLaterService.IsListenLaterEpisodeAsync(Episode.Id);
+        if (_isListenLater != newValue)
+        {
+            _isListenLater = newValue;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void TogglePlay()
+    {
+        _isPlaying = !_isCurrentEpisode || !_isPlaying;
+        if (_isPlaying)
+        {
+            PlayerService.Play(Episode);
+        }
+        else
+        {
+            PlayerService.Pause();
+        }
+    }
+
+    private async Task ToggleListenLater()
+    {
+        _isListenLater = !_isListenLater;
+        await ListenLaterService.ToggleListenLaterEpisodeAsync(Episode, _isListenLater);
+    }
+}

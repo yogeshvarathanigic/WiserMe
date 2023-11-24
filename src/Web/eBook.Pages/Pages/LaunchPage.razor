@@ -1,0 +1,45 @@
+﻿@* @page "/";
+@using eBook.Pages.Models
+
+@inject NavigationManager NavManager;
+
+<h3>Launching Page</h3>
+
+Loading....
+
+@code {
+
+    protected override async Task OnInitializedAsync()
+    {
+        var userBasicDetail = new UserBasicDetail { AccessToken = "Test", Email = "test@email.com", Name = "Saba", RefreshToken = "test1", UserAvatar = "Avatar", UserID = "Sabaji" };
+
+        if (!string.IsNullOrWhiteSpace(userBasicDetail.UserID))
+        {
+
+            if ( DateTime.UtcNow.AddHours(-1)  < DateTime.UtcNow)
+            {
+                var isTokenRefreshed = false;
+
+                if (isTokenRefreshed)
+                {
+                    NavManager.NavigateTo("/dashboard");
+                }
+                else
+                {
+                    NavManager.NavigateTo("/login");
+                }
+
+            }
+            else
+            {
+                NavManager.NavigateTo("/dashboard");
+            }
+        }
+        else
+        {
+            NavManager.NavigateTo("/login");
+        }
+
+    }
+}
+ *@
