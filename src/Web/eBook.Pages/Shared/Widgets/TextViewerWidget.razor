@@ -1,0 +1,13 @@
+@using eBook.Pages.ViewModel
+@inherits ComponentBase
+
+
+<h2>@TextViewerWidgetViewModel.Title</h2>
+<div>@TextViewerWidgetViewModel.Content</div>
+
+
+@code
+{
+    [Parameter]
+    public TextViewerWidgetViewModel TextViewerWidgetViewModel { get; set; }
+}

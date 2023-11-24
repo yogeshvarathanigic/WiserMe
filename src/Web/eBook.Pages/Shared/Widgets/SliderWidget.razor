@@ -1,0 +1,181 @@
+<div id="kt_sliders_widget_2_slider" class="card card-flush carousel carousel-custom carousel-stretch slide h-xl-100" data-bs-ride="carousel" data-bs-interval="5500">
+    <!--begin::Header-->
+    <div class="card-header pt-5">
+        <!--begin::Title-->
+        <h4 class="card-title d-flex align-items-start flex-column">
+            <span class="card-label fw-bold text-gray-800">@Model.Title</span>
+            <span class="text-gray-500 mt-1 fw-bold fs-7">@Model.EventCount</span>
+        </h4>
+        <!--end::Title-->
+        <!--begin::Toolbar-->
+        <div class="card-toolbar">
+            <!--begin::Carousel Indicators-->
+            <ol class="p-0 m-0 carousel-indicators carousel-indicators-bullet carousel-indicators-active-success">
+                @for (var i = 0; i < Model.Indicators.Count; i++)
+                {
+                    <li data-bs-target="#kt_sliders_widget_2_slider" data-bs-slide-to="@i" class="ms-1 @(i == 0 ? "active" : "")"></li>
+                }
+            </ol>
+            <!--end::Carousel Indicators-->
+        </div>
+        <!--end::Toolbar-->
+    </div>
+    <!--end::Header-->
+    <!--begin::Body-->
+    <div class="card-body py-6">
+        <!--begin::Carousel-->
+        <div class="carousel-inner">
+            @for (var i = 0; i < Model.Events.Count; i++)
+            {
+                <div class="carousel-item @(i == 0 ? "show" : i == 1 ? "active" : string.Empty)">
+                    <!--begin::Wrapper-->
+                    <div class="d-flex align-items-center mb-9">
+                        <!--begin::Symbol-->
+                        <div class="symbol symbol-70px symbol-circle me-5">
+                            <span class="symbol-label @(Model.Events[i].SymbolBackgroundColor)">
+                                <i class="@Model.Events[i].SymbolIcon fs-3x @(Model.Events[i].SymbolColor)"></i>
+                            </span>
+                        </div>
+                        <!--end::Symbol-->
+                        <!--begin::Info-->
+                        <div class="m-0">
+                            <!--begin::Subtitle-->
+                            <h4 class="fw-bold text-gray-800 mb-3">@Model.Events[i].EventTitle</h4>
+                            <!--end::Subtitle-->
+                            <!--begin::Items-->
+                            <div class="d-flex d-grid gap-5">
+                                <!--begin::Item-->
+                                <div class="d-flex flex-column flex-shrink-0 me-4">
+                                    <!--begin::Section-->
+                                    <span class="d-flex align-items-center fs-7 fw-bold text-gray-500 mb-2">
+                                        <i class="ki-outline ki-right-square fs-6 text-gray-600 me-2"></i>@Model.Events[i].Topics
+                                    </span>
+                                    <!--end::Section-->
+                                    <!--begin::Section-->
+                                    <span class="d-flex align-items-center text-gray-500 fw-bold fs-7">
+                                        <i class="ki-outline ki-right-square fs-6 text-gray-600 me-2"></i>@Model.Events[i].Speakers
+                                    </span>
+                                    <!--end::Section-->
+                                </div>
+                                <!--end::Item-->
+                                <!--begin::Item-->
+                                <div class="d-flex flex-column flex-shrink-0">
+                                    <!--begin::Section-->
+                                    <span class="d-flex align-items-center fs-7 fw-bold text-gray-500 mb-2">
+                                        <i class="ki-outline ki-right-square fs-6 text-gray-600 me-2"></i>@Model.Events[i].Duration
+                                    </span>
+                                    <!--end::Section-->
+                                    <!--begin::Section-->
+                                    <span class="d-flex align-items-center text-gray-500 fw-bold fs-7">
+                                        <i class="ki-outline ki-right-square fs-6 text-gray-600 me-2"></i>@Model.Events[i].Students
+                                    </span>
+                                    <!--end::Section-->
+                                </div>
+                                <!--end::Item-->
+                            </div>
+                            <!--end::Items-->
+                        </div>
+                        <!--end::Info-->
+                    </div>
+                    <!--end::Wrapper-->
+                    <!--begin::Action-->
+                    <div class="m-0">
+                        <a href="@Model.Events[i].DetailsLink" class="btn btn-sm btn-light me-2 mb-2">Details</a>
+                        <a href="@Model.Events[i].JoinLink" class="btn btn-sm @(Model.Events[i].JoinButtonStyle) mb-2" data-bs-toggle="modal" data-bs-target="#kt_modal_create_campaign">Join Event</a>
+                    </div>
+                    <!--end::Action-->
+                </div>
+            }
+        </div>
+        <!--end::Carousel-->
+    </div>
+    <!--end::Body-->
+</div>
+
+@code
+{
+    public class SliderWidgetModel
+    {
+        public string Title { get; set; }
+        public string EventCount { get; set; }
+        public List<CarouselIndicator> Indicators { get; set; }
+        public List<EventDetails> Events { get; set; }
+    }
+
+    public class CarouselIndicator
+    {
+    }
+
+    public class EventDetails
+    {
+        public string SymbolBackgroundColor { get; set; }
+        public string SymbolIcon { get; set; }
+        public string SymbolColor { get; set; }
+        public string EventTitle { get; set; }
+        public int Topics { get; set; }
+        public int Speakers { get; set; }
+        public string Duration { get; set; }
+        public int Students { get; set; }
+        public string DetailsLink { get; set; }
+        public string JoinLink { get; set; }
+        public string JoinButtonStyle { get; set; }
+    }
+
+    // Create an instance of YourModel and populate it with sample data
+    SliderWidgetModel Model = new SliderWidgetModel
+    {
+        Title = "Today’s Challenges",
+        EventCount = "5 Challenges on all activities",
+        Indicators = new List<CarouselIndicator>
+        {
+            new CarouselIndicator(),
+            new CarouselIndicator(),
+            new CarouselIndicator()
+        },
+        Events = new List<EventDetails>
+        {
+            new EventDetails
+            {
+                SymbolBackgroundColor = "bg-light-success",
+                SymbolIcon = "ki-outline ki-abstract-24",
+                SymbolColor = "text-success",
+                EventTitle = "Ruby on Rails",
+                Topics = 5,
+                Speakers = 1,
+                Duration = "60 Min",
+                Students = 137,
+                DetailsLink = "#",
+                JoinLink = "#",
+                JoinButtonStyle = "btn-success"
+            },
+            new EventDetails
+            {
+                SymbolBackgroundColor = "bg-light-danger",
+                SymbolIcon = "ki-outline ki-abstract-25",
+                SymbolColor = "text-danger",
+                EventTitle = "Ruby on Rails",
+                Topics = 12,
+                Speakers = 1,
+                Duration = "50 Min",
+                Students = 72,
+                DetailsLink = "#",
+                JoinLink = "#",
+                JoinButtonStyle = "btn-success"
+            },
+            new EventDetails
+            {
+                SymbolBackgroundColor = "bg-light-primary",
+                SymbolIcon = "ki-outline ki-abstract-36",
+                SymbolColor = "text-primary",
+                EventTitle = "Ruby on Rails",
+                Topics = 3,
+                Speakers = 1,
+                Duration = "50 Min",
+                Students = 72,
+                DetailsLink = "#",
+                JoinLink = "#",
+                JoinButtonStyle = "btn-success"
+            }
+        }
+    };
+}

@@ -1,0 +1,314 @@
+﻿@page "/dashboard"
+@using eBook.Pages.Shared.Widgets
+@using eBook.Pages.ViewModel
+@using eBook.Pages.Models.Cards
+
+<!--begin::Content container-->
+<div id="kt_app_content_container" class="app-container container-xxl">
+    
+@*     <!--begin::Row-->
+    <div class="row flex-row flex-nowrap overflow-x-auto">
+        <!--begin::Col-->
+        <div class="col-xl-4 col-sm-4">
+            <SliderWidget></SliderWidget>
+        </div>
+        <div class="col-xl-4 col-sm-4">
+            <SliderWidget></SliderWidget>
+        </div>
+        <!--end::Col-->
+    </div>
+    <!--end::Row--> *@
+    
+    <div class="row flex-row flex-nowrap overflow-x-auto">
+        <!--begin::Col-->
+        <div class="col-xl-12 col-sm-12">
+            <PlayerWidget></PlayerWidget>
+        </div>
+        <!--end::Col-->
+    </div>
+
+    @foreach (var t in dashboardViewModel.CardWidgetViewModels)
+    {
+        <!--begin::Row-->
+        <div class="row flex-row flex-nowrap overflow-x-auto">
+            <!--begin::Col-->
+            <div class="col-xl-12 col-sm-12">
+               @_PartialCardWidget(t)
+            </div>
+            <!--end::Col-->
+        </div>
+        <!--end::Row-->
+    }
+
+</div>
+<!--end::Content container-->
+
+@code {
+
+    DashboardViewModel dashboardViewModel = new DashboardViewModel()
+    {
+        CardWidgetViewModels = new List<CardWidgetViewModel>()
+        {
+            new CardWidgetViewModel()
+            {
+                CardHeader = new CardHeader()
+                {
+                    CardTitle = new CardTitle()
+                    {
+                        Title = "Top 10 Management Books",
+                        RibbonTitle = "NEW"
+                    },
+                    CardToolbar = new CardToolbar()
+                    {
+                        Text = "MORE",
+                        Link = "/details"
+                    }
+                },
+                CardBody = new CardBody()
+                {
+                    CardBodyInfos = new List<CardBodyInfo>
+                    {
+                        new CardBodyInfo
+                        {
+                            Title = "Feeling Good",
+                            SubTitle = "2 hours",
+                            Url = "_content/eBook.Pages/assets/media/book/1.png",
+                            ImageUrl = "_content/eBook.Pages/assets/media/book/1.png"
+                        },
+                        new CardBodyInfo
+                        {
+                            Title = "Both Sides",
+                            SubTitle = "2 hours",
+                            Url = "_content/eBook.Pages/assets/media/book/2.png",
+                            ImageUrl = "_content/eBook.Pages/assets/media/book/2.png"
+                        },
+                        new CardBodyInfo
+                        {
+                            Title = "Birds in the Sky",
+                            SubTitle = "2 hours",
+                            Url = "_content/eBook.Pages/assets/media/book/3.png",
+                            ImageUrl = "_content/eBook.Pages/assets/media/book/3.png"
+                        }, new CardBodyInfo
+                        {
+                            Title = "Feeling Good",
+                            SubTitle = "2 hours",
+                            Url = "_content/eBook.Pages/assets/media/book/4.png",
+                            ImageUrl = "_content/eBook.Pages/assets/media/book/4.png"
+                        },
+                        new CardBodyInfo
+                        {
+                            Title = "Both Sides",
+                            SubTitle = "2 hours",
+                            Url = "_content/eBook.Pages/assets/media/book/5.png",
+                            ImageUrl = "_content/eBook.Pages/assets/media/book/5.png"
+                        },
+                        new CardBodyInfo
+                        {
+                            Title = "Birds in the Sky",
+                            SubTitle = "2 hours",
+                            Url = "_content/eBook.Pages/assets/media/book/6.png",
+                            ImageUrl = "_content/eBook.Pages/assets/media/book/6.png"
+                        }
+                    }
+                }
+            },
+            new CardWidgetViewModel()
+            {
+                CardHeader = new CardHeader()
+                {
+                    CardTitle = new CardTitle()
+                    {
+                        Title = "Top 10 Challenges",
+                        RibbonTitle = "OLD"
+                    },
+                    CardToolbar = new CardToolbar()
+                    {
+                        Text = "MORE",
+                        Link = "/profile"
+                    }
+                },
+                CardBody = new CardBody()
+                {
+                    CardBodyInfos = new List<CardBodyInfo>
+                    {
+                        new CardBodyInfo
+                        {
+                            Title = "Feeling Good",
+                            SubTitle = "2 hours",
+                            Url = "_content/eBook.Pages/assets/media/book/10.png",
+                            ImageUrl = "_content/eBook.Pages/assets/media/book/10.png"
+                        },
+                        new CardBodyInfo
+                        {
+                            Title = "Both Sides",
+                            SubTitle = "2 hours",
+                            Url = "_content/eBook.Pages/assets/media/book/11.png",
+                            ImageUrl = "_content/eBook.Pages/assets/media/book/11.png"
+                        },
+                        new CardBodyInfo
+                        {
+                            Title = "Birds in the Sky",
+                            SubTitle = "2 hours",
+                            Url = "_content/eBook.Pages/assets/media/book/12.png",
+                            ImageUrl = "_content/eBook.Pages/assets/media/book/12.png"
+                        },
+                        new CardBodyInfo
+                        {
+                            Title = "Feeling Good",
+                            SubTitle = "2 hours",
+                            Url = "_content/eBook.Pages/assets/media/book/4.png",
+                            ImageUrl = "_content/eBook.Pages/assets/media/book/4.png"
+                        },
+                        new CardBodyInfo
+                        {
+                            Title = "Both Sides",
+                            SubTitle = "2 hours",
+                            Url = "_content/eBook.Pages/assets/media/book/5.png",
+                            ImageUrl = "_content/eBook.Pages/assets/media/book/5.png"
+                        },
+                        new CardBodyInfo
+                        {
+                            Title = "Birds in the Sky",
+                            SubTitle = "2 hours",
+                            Url = "_content/eBook.Pages/assets/media/book/6.png",
+                            ImageUrl = "_content/eBook.Pages/assets/media/book/6.png"
+                        }
+                    }
+                }
+            },
+            new CardWidgetViewModel()
+            {
+                CardHeader = new CardHeader()
+                {
+                    CardTitle = new CardTitle()
+                    {
+                        Title = "New Releases"
+                    },
+                    CardToolbar = new CardToolbar()
+                    {
+                        Text = "MORE",
+                        Link = "/settings"
+                    }
+                },
+                CardBody = new CardBody()
+                {
+                    CardBodyInfos = new List<CardBodyInfo>
+                    {
+                        new CardBodyInfo
+                        {
+                            Title = "Feeling Great",
+                            SubTitle = "2 hours",
+                            Url = "_content/eBook.Pages/assets/media/book/7.png",
+                            ImageUrl = "_content/eBook.Pages/assets/media/book/7.png"
+                        },
+                        new CardBodyInfo
+                        {
+                            Title = "Both Sides 2",
+                            SubTitle = "2 hours",
+                            Url = "_content/eBook.Pages/assets/media/book/8.png",
+                            ImageUrl = "_content/eBook.Pages/assets/media/book/8.png"
+                        },
+                        new CardBodyInfo
+                        {
+                            Title = "Birds in the Sky 2",
+                            SubTitle = "2 hours",
+                            Url = "_content/eBook.Pages/assets/media/book/9.png",
+                            ImageUrl = "_content/eBook.Pages/assets/media/book/9.png"
+                        },
+                        new CardBodyInfo
+                        {
+                            Title = "Feeling Good",
+                            SubTitle = "2 hours",
+                            Url = "_content/eBook.Pages/assets/media/book/10.png",
+                            ImageUrl = "_content/eBook.Pages/assets/media/book/10.png"
+                        },
+                        new CardBodyInfo
+                        {
+                            Title = "Both Sides",
+                            SubTitle = "2 hours",
+                            Url = "_content/eBook.Pages/assets/media/book/11.png",
+                            ImageUrl = "_content/eBook.Pages/assets/media/book/11.png"
+                        },
+                        new CardBodyInfo
+                        {
+                            Title = "Birds in the Sky",
+                            SubTitle = "2 hours",
+                            Url = "_content/eBook.Pages/assets/media/book/12.png",
+                            ImageUrl = "_content/eBook.Pages/assets/media/book/12.png"
+                        }
+                    }
+                }
+            },
+            new CardWidgetViewModel()
+            {
+                CardHeader = new CardHeader()
+                {
+                    CardTitle = new CardTitle()
+                    {
+                        Title = "Top 10 in India",
+                    },
+                    CardToolbar = new CardToolbar()
+                    {
+                        Text = "MORE",
+                        Link = "/listen-discover"
+                    }
+                },
+                CardBody = new CardBody()
+                {
+                    CardBodyInfos = new List<CardBodyInfo>
+                    {
+                        new CardBodyInfo
+                        {
+                            Title = "Feeling Good",
+                            SubTitle = "2 hours",
+                            Url = "_content/eBook.Pages/assets/media/book/10.png",
+                            ImageUrl = "_content/eBook.Pages/assets/media/book/10.png"
+                        },
+                        new CardBodyInfo
+                        {
+                            Title = "Both Sides",
+                            SubTitle = "2 hours",
+                            Url = "_content/eBook.Pages/assets/media/book/11.png",
+                            ImageUrl = "_content/eBook.Pages/assets/media/book/11.png"
+                        },
+                        new CardBodyInfo
+                        {
+                            Title = "Birds in the Sky",
+                            SubTitle = "2 hours",
+                            Url = "_content/eBook.Pages/assets/media/book/12.png",
+                            ImageUrl = "_content/eBook.Pages/assets/media/book/12.png"
+                        },
+                        new CardBodyInfo
+                        {
+                            Title = "Feeling Good",
+                            SubTitle = "2 hours",
+                            Url = "_content/eBook.Pages/assets/media/book/10.png",
+                            ImageUrl = "_content/eBook.Pages/assets/media/book/10.png"
+                        },
+                        new CardBodyInfo
+                        {
+                            Title = "Both Sides",
+                            SubTitle = "2 hours",
+                            Url = "_content/eBook.Pages/assets/media/book/11.png",
+                            ImageUrl = "_content/eBook.Pages/assets/media/book/11.png"
+                        },
+                        new CardBodyInfo
+                        {
+                            Title = "Birds in the Sky",
+                            SubTitle = "2 hours",
+                            Url = "_content/eBook.Pages/assets/media/book/12.png",
+                            ImageUrl = "_content/eBook.Pages/assets/media/book/12.png"
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    RenderFragment _PartialCardWidget(CardWidgetViewModel model) => builder =>
+    {
+        builder.OpenComponent(0, typeof(CardWidget));
+        builder.AddAttribute(1, "_cardWidgetViewModel", model);
+        builder.CloseComponent();
+    };
+}

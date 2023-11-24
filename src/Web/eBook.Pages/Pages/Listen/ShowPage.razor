@@ -1,0 +1,285 @@
+﻿@page "/show/{id:guid}"
+@implements IDisposable
+@inject PlayerService PlayerService
+@inject PodcastService PodcastService
+@inject SubscriptionsService SubscriptionsService
+@inject PersistentComponentState ApplicationState
+
+<PageTitle>Podcast - @(_show == null ? "Show" : _show.Title)</PageTitle>
+
+<div class="titleWrapper">
+    <button class="appLink" onclick="history.go(-1)">
+        <span class="appLink-icon icon-chevron-left"></span>
+        <span>Back</span>
+    </button>
+</div>
+
+@if (_show == null)
+{
+    <Spinner />
+}
+else
+{
+    <div class="containerPage">
+        <ShowResume Title="@_show.Title"
+                Author="@_show.Author"
+                Description="@_show.Description"
+                Image="@_show.Image"
+                IsSubscribed="@_isSubscribed"
+                Categories="@_showCategories"
+                OnSubscriptionChange="@ChangeShowSubscription" />
+
+        <div class="showEpisodes">
+            @if (_episodes == null)
+            {
+                <Spinner />
+            }
+            else if (_episodes.Any())
+            {
+                <SubtitlePage Label="Episodes" />
+
+                <Virtualize Items="@_episodes" Context="item" TItem="EpisodeInfo" ItemSize="220">
+                    <EpisodeListItem Episode="@item" />
+                </Virtualize>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private bool _isSubscribed = false;
+    private Show? _show;
+    private ICollection<EpisodeInfo>? _episodes;
+    private IEnumerable<string>? _showCategories;
+    private PersistingComponentStateSubscription _persistingSubscription;
+
+    [Parameter]
+    public Guid Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _persistingSubscription = ApplicationState.RegisterOnPersisting(PersistShow);
+
+        if (!ApplicationState.TryTakeFromJson<Show>("show", out var restored))
+        {
+            _show = new Show(
+                Id: Guid.NewGuid(),
+                Title: "Tech Talk Podcast",
+                Author: "Saba",
+                Description: "A podcast about technology and innovation.",
+                Image: "https://file-examples.com/wp-content/storage/2017/10/file_example_PNG_500kB.png",
+                Updated: DateTime.UtcNow,
+                Link: "https://www.techtalkpodcast.com",
+                Email: "saba@example.com",
+                Language: "English",
+                Categories: new List<Category>
+                {
+                    new Category(Guid.NewGuid(), "Technology"),
+                    new Category(Guid.NewGuid(), "Innovation"),
+                    new Category(Guid.NewGuid(), "Excellence"),
+                    },
+                Episodes: new List<Episode>
+                        {
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 1: Introduction to Tech Talk 2",
+                            Description: "In this episode, we introduce our podcast and discuss our goals.",
+                            Published: DateTime.UtcNow.AddMonths(-1),
+                            Url: "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 2: The Future of Technology 2",
+                            Description: "We explore the latest advancements in technology and their impact on society.",
+                            Published: DateTime.UtcNow.AddMonths(-2),
+                            Url: "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 3: Introduction to Tech Talk 2",
+                            Description: "In this episode, we introduce our podcast and discuss our goals.",
+                            Published: DateTime.UtcNow.AddMonths(-1),
+                            Url: "https://www.techtalkpodcast.com/episode1",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 4: The Future of Technology 2",
+                            Description: "We explore the latest advancements in technology and their impact on society.",
+                            Published: DateTime.UtcNow.AddMonths(-2),
+                            Url: "https://www.techtalkpodcast.com/episode2",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 5: Introduction to Tech Talk 2",
+                            Description: "In this episode, we introduce our podcast and discuss our goals.",
+                            Published: DateTime.UtcNow.AddMonths(-1),
+                            Url: "https://www.techtalkpodcast.com/episode1",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 6: The Future of Technology 2",
+                            Description: "We explore the latest advancements in technology and their impact on society.",
+                            Published: DateTime.UtcNow.AddMonths(-2),
+                            Url: "https://www.techtalkpodcast.com/episode2",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 7: Introduction to Tech Talk 2",
+                            Description: "In this episode, we introduce our podcast and discuss our goals.",
+                            Published: DateTime.UtcNow.AddMonths(-1),
+                            Url: "https://www.techtalkpodcast.com/episode1",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 8: The Future of Technology 2",
+                            Description: "We explore the latest advancements in technology and their impact on society.",
+                            Published: DateTime.UtcNow.AddMonths(-2),
+                            Url: "https://www.techtalkpodcast.com/episode2",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 9: Introduction to Tech Talk 2",
+                            Description: "In this episode, we introduce our podcast and discuss our goals.",
+                            Published: DateTime.UtcNow.AddMonths(-1),
+                            Url: "https://www.techtalkpodcast.com/episode1",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 10: The Future of Technology 2",
+                            Description: "We explore the latest advancements in technology and their impact on society.",
+                            Published: DateTime.UtcNow.AddMonths(-2),
+                            Url: "https://www.techtalkpodcast.com/episode2",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 11: Introduction to Tech Talk 2",
+                            Description: "In this episode, we introduce our podcast and discuss our goals.",
+                            Published: DateTime.UtcNow.AddMonths(-1),
+                            Url: "https://www.techtalkpodcast.com/episode1",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 12: The Future of Technology 2",
+                            Description: "We explore the latest advancements in technology and their impact on society.",
+                            Published: DateTime.UtcNow.AddMonths(-2),
+                            Url: "https://www.techtalkpodcast.com/episode2",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 13: Introduction to Tech Talk 2",
+                            Description: "In this episode, we introduce our podcast and discuss our goals.",
+                            Published: DateTime.UtcNow.AddMonths(-1),
+                            Url: "https://www.techtalkpodcast.com/episode1",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 14: The Future of Technology 2",
+                            Description: "We explore the latest advancements in technology and their impact on society.",
+                            Published: DateTime.UtcNow.AddMonths(-2),
+                            Url: "https://www.techtalkpodcast.com/episode2",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 15: Introduction to Tech Talk 2",
+                            Description: "In this episode, we introduce our podcast and discuss our goals.",
+                            Published: DateTime.UtcNow.AddMonths(-1),
+                            Url: "https://www.techtalkpodcast.com/episode1",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 16: The Future of Technology 2",
+                            Description: "We explore the latest advancements in technology and their impact on society.",
+                            Published: DateTime.UtcNow.AddMonths(-2),
+                            Url: "https://www.techtalkpodcast.com/episode2",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 17: Introduction to Tech Talk 2",
+                            Description: "In this episode, we introduce our podcast and discuss our goals.",
+                            Published: DateTime.UtcNow.AddMonths(-1),
+                            Url: "https://www.techtalkpodcast.com/episode1",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            ),
+                        new Episode(
+                            Id: Guid.NewGuid(),
+                            Title: "Episode 18: The Future of Technology 2",
+                            Description: "We explore the latest advancements in technology and their impact on society.",
+                            Published: DateTime.UtcNow.AddMonths(-2),
+                            Url: "https://www.techtalkpodcast.com/episode2",
+                            Duration: new TimeSpan(1, 10, 5, 10),
+                            Explicit: "true"
+                            )
+                        },
+                IsFeatured: true
+                );
+    // await PodcastService.GetShow(Id);
+        }
+        else
+        {
+            _show = restored!;
+        }
+
+        _showCategories = _show?.Categories?.Select(c => c.Genre);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_show != null && _episodes == null)
+        {
+            _episodes = _show.Episodes.Select(e => new EpisodeInfo(_show, e)).ToList();
+            _isSubscribed = await SubscriptionsService.IsSubscribedShowAsync(_show.Id);
+            StateHasChanged();
+        }
+    }
+
+    private async Task ChangeShowSubscription()
+    {
+        _isSubscribed = !_isSubscribed;
+        await SubscriptionsService.ToggleShowSubscriptionAsync(new ShowInfo(_show!), _isSubscribed);
+    }
+
+
+    private Task PersistShow()
+    {
+        ApplicationState.PersistAsJson("show", _show);
+        return Task.CompletedTask;
+    }
+
+    public void Dispose()
+    {
+        _persistingSubscription.Dispose();
+    }
+}

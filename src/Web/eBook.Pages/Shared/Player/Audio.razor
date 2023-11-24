@@ -1,0 +1,133 @@
+﻿@using eBook.Pages.Events
+@using eBook.Components
+@implements IDisposable
+@inject PlayerService PlayerService
+@inject IAudioInterop AudioJsInterop
+
+<audio @ref="_audioElementRef"
+       src="@url"
+       oncustomdurationchange="@OnDurationChange"
+       oncustomtimeupdate="@OnTimeUpdate"
+       onplaybackratechange="@OnPlaybackRateChange"
+       onplay="@OnPlay"
+       onpause="@OnPause" />
+
+@code {
+    ElementReference _audioElementRef;
+
+    private string? url;
+
+    protected override void OnInitialized()
+    {
+        PlayerService.VolumeChanged += OnVolumeChanged;
+        PlayerService.MutedChanged += OnMutedChanged;
+        PlayerService.EpisodeChanged += OnEpisodeChanged;
+        PlayerService.PlayingChanged += OnPlayingChanged;
+        PlayerService.TimeSought += OnTimeSought;
+        PlayerService.PlaybackRateChanged += OnPlaybackRateChanged;
+
+        url = PlayerService.Episode?.Url;
+        AudioJsInterop.SetUri(url);
+    }
+
+    public void Dispose()
+    {
+        PlayerService.VolumeChanged -= OnVolumeChanged;
+        PlayerService.MutedChanged -= OnMutedChanged;
+        PlayerService.EpisodeChanged -= OnEpisodeChanged;
+        PlayerService.PlayingChanged -= OnPlayingChanged;
+        PlayerService.TimeSought -= OnTimeSought;
+        PlayerService.PlaybackRateChanged -= OnPlaybackRateChanged;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await AudioJsInterop.SetMutedAsync(_audioElementRef, PlayerService.IsMuted);
+            await AudioJsInterop.SetVolumeAsync(_audioElementRef, PlayerService.Volume);
+        }
+
+        await AudioJsInterop.SetPlaybackRateAsync(_audioElementRef, PlayerService.PlaybackRate);
+    }
+
+    private void OnDurationChange(DurationChangeEventArgs args)
+    {
+        PlayerService.Duration = args.Duration;
+    }
+
+    private void OnTimeUpdate(TimeUpdateEventArgs args)
+    {
+        PlayerService.CurrentTime = args.CurrentTime;
+    }
+
+    private void OnPlaybackRateChange(PlaybackRateChangeEventArgs args)
+    {
+        PlayerService.PlaybackRate = args.PlaybackRate;
+    }
+
+    private void OnPlay(EventArgs args)
+    {
+        if (!PlayerService.IsPlaying)
+        {
+            PlayerService.IsPlaying = true;
+        }
+    }
+
+    private void OnPause(EventArgs args)
+    {
+        if (PlayerService.IsPlaying)
+        {
+            PlayerService.IsPlaying = false;
+        }
+    }
+
+    private async void OnVolumeChanged(int volume)
+    {
+        await AudioJsInterop.SetVolumeAsync(_audioElementRef, volume);
+    }
+
+    private async void OnMutedChanged(bool muted)
+    {
+        await AudioJsInterop.SetMutedAsync(_audioElementRef, muted);
+    }
+
+    private async void OnPlayingChanged(bool play)
+    {
+        if (play)
+        {
+            await AudioJsInterop.PlayAsync(_audioElementRef);
+        }
+        else
+        {
+            await AudioJsInterop.PauseAsync(_audioElementRef);
+        }
+    }
+
+    private async void OnEpisodeChanged(EpisodeInfo? episode)
+    {
+        var newValue = episode?.Url;
+        if (url != newValue)
+        {
+            url = newValue;
+            AudioJsInterop.SetUri(url);
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async void OnTimeSought(double? time)
+    {
+        if (time != null)
+        {
+            await AudioJsInterop.SetCurrentTimeAsync(_audioElementRef, time.Value);
+        }
+    }
+
+    private async void OnPlaybackRateChanged(double? playbackRate)
+    {
+        if (playbackRate.HasValue)
+        {
+            await AudioJsInterop.SetPlaybackRateAsync(_audioElementRef, playbackRate.Value);
+        }
+    }
+}

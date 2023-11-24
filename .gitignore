@@ -1,0 +1,16 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs
+/src/Mobile/.vs
+/src/Mobile/eBook.Mobile.Shared/bin/Debug
+/src/Mobile/eBook.Mobile.Shared/obj
+/src/Mobile/eBook.MobileApp/bin/Debug
+/src/Mobile/eBook.MobileApp/obj
+/src/Web/eBook.Pages/bin/Debug/net8.0
+/src/Web/eBook.Pages/obj
+/src/Web/eBook.Shared/bin/Debug/net8.0
+/src/Web/eBook.Shared/obj
+/src/Web/eBook.Components/bin/Debug/net8.0
+/src/Web/eBook.Components/obj

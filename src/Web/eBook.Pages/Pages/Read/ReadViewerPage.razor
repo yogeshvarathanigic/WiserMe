@@ -1,0 +1,21 @@
+﻿@page "/read-viewer"
+
+@using eBook.Pages.Shared.Widgets
+@using eBook.Pages.ViewModel
+@inherits ComponentBase
+
+<div id="kt_app_content_container" class="app-container container-xxl">
+<div class="row g-5 g-xl-8">
+    <div class="col-xl-6">
+        <TextViewerWidget TextViewerWidgetViewModel="_textViewerWidgetViewModel" />
+    </div>
+</div>
+</div>
+
+@code {
+    private readonly TextViewerWidgetViewModel _textViewerWidgetViewModel = new TextViewerWidgetViewModel
+    {
+        Title = "Sample Book",
+        Content = "This is the content of the book.More content here."
+    };
+}
